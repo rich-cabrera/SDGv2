@@ -1,6 +1,6 @@
-elasticsearchScheme: http
-elasticsearchHost: localhost
-elasticsearchPort: 30920
+elasticsearchScheme: https
+elasticsearchHost: 38b9249405d44e4fbe37122c0da005ed.us-east-1.aws.found.io
+elasticsearchPort: 443
 elasticsearchUser: sdg
 elasticsearchPassword: changeme
 workloads:
@@ -349,7 +349,7 @@ workloads:
   - workloadName: bluecoat-proxy
     workloadThreads: 6
     workloadSleep: 100
-    indexName: logs-proxysg.log-default
+    indexName: proxy
     fields:
       - name: proxcode
         type: int
@@ -406,7 +406,7 @@ workloads:
   - workloadName: bluecoat-proxy-malware
     workloadThreads: 1
     workloadSleep: 10000
-    indexName: logs-proxysg.log-default
+    indexName: proxy
     fields:
       - name: proxcode
         type: int
@@ -459,19 +459,19 @@ workloads:
         type: int
         range: 1,1035
 
-  - workloadName: logs-windows.sysmon_operational-default
-    workloadThreads: 6
-    workloadSleep: 5
-    #indexName: winlogbeat-default
-    indexName: logs-windows.sysmon_operational-default
+  # Windows System Logs - services, drivers, system events
+  - workloadName: windows-system-logs
+    workloadThreads: 2
+    workloadSleep: 50
+    indexName: wineventlog-system
     fields:
       - name: eventcategory
         type: random_string_from_list
-        custom_list: iam,iam,iam,iam,iam,iam,iam,authentication,authentication,authentication,process,configuration,process,configuration,driver,registry,registry
+        custom_list: driver,configuration,process,configuration,driver,process,driver,configuration
 
       - name: wincode
         type: int
-        range: 1,422
+        range: 1,200
 
       - name: processname
         type: path
@@ -481,7 +481,7 @@ workloads:
 
       - name: eventtype
         type: random_string_from_list
-        custom_list: access,change,connection,end,start
+        custom_list: start,stop,info,error,warning,start,info,info,start
 
       - name: 2rip1
         type: int
@@ -489,18 +489,117 @@ workloads:
 
       - name: 2rip2
         type: int
-        range: 49,49
+        range: 30,50
 
       - name: 2rip3
         type: int
-        range: 110,110
+        range: 100,200
 
       - name: 2rip4
         type: int
-        range: 0,100
+        range: 0,254
 
       - name: processpename
-        type: path        
+        type: path
+
+      - name: processargs
+        type: appname
+
+      - name: servicename
+        type: appname
+
+  # Windows Application Logs - application errors, warnings, info
+  - workloadName: windows-application-logs
+    workloadThreads: 2
+    workloadSleep: 75
+    indexName: wineventlog-application
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: process,configuration,process,process,process,configuration
+
+      - name: wincode
+        type: int
+        range: 1000,1100
+
+      - name: processname
+        type: path
+
+      - name: parentprocessname
+        type: path
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: error,warning,info,info,info,info,error,warning,info
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: processpename
+        type: path
+
+      - name: processargs
+        type: appname
+
+      - name: errorcode
+        type: int
+        range: 0,65535
+
+  # Windows Security Logs - authentication, access control, audit events
+  - workloadName: windows-security-logs
+    workloadThreads: 3
+    workloadSleep: 25
+    indexName: winlogsec
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: iam,iam,iam,iam,authentication,authentication,authentication,authentication,access,access
+
+      - name: wincode
+        type: int
+        range: 4600,4800
+
+      - name: processname
+        type: path
+
+      - name: parentprocessname
+        type: path
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: access,allowed,denied,user,group,authentication,allowed,allowed,denied,access
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: processpename
+        type: path
 
       - name: processargs
         type: appname
@@ -509,21 +608,21 @@ workloads:
         type: appname
 
       - name: registry2
-        type: appname        
+        type: appname
 
-  - workloadName: logs-windows.sysmon_operational-malware
+  # Windows Security Logs - Suspicious/Malicious activity
+  - workloadName: windows-security-logs-malware
     workloadThreads: 1
-    workloadSleep: 100
-    #indexName: winlogbeat-default
-    indexName: logs-windows.sysmon_operational-default
+    workloadSleep: 15000
+    indexName: winlogsec
     fields:
       - name: eventcategory
         type: random_string_from_list
-        custom_list: iam,authentication,authentication,authentication,process,configuration,process,configuration,driver,registry,registry
+        custom_list: iam,authentication,authentication,process,registry
 
       - name: wincode
         type: int
-        range: 18,24
+        range: 4625,4648
 
       - name: processname
         type: path
@@ -533,7 +632,7 @@ workloads:
 
       - name: eventtype
         type: random_string_from_list
-        custom_list: access,change,connection,end,start
+        custom_list: denied,denied,access,user,authentication
 
       - name: 2rip1
         type: int
@@ -541,18 +640,18 @@ workloads:
 
       - name: 2rip2
         type: int
-        range: 49,49
+        range: 30,50
 
       - name: 2rip3
         type: int
-        range: 110,110
+        range: 100,200
 
       - name: 2rip4
         type: int
-        range: 0,100
+        range: 0,254
 
       - name: processpename
-        type: path        
+        type: path
 
       - name: processargs
         type: appname

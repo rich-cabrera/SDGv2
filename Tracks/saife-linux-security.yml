@@ -1,0 +1,217 @@
+# Linux Security Log Generator - Audit and Secure logs
+# Configure connection settings for your Elastic Cloud deployment
+elasticsearchScheme: https
+elasticsearchHost: 38b9249405d44e4fbe37122c0da005ed.us-east-1.aws.found.io
+elasticsearchPort: 443
+elasticsearchUser: sdg
+elasticsearchPassword: changeme
+workloads:
+  # Linux audit logs - security auditing events
+  - workloadName: linux-audit
+    workloadThreads: 2
+    workloadSleep: 75
+    indexName: nixlogsec
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: iam,authentication,process,file,network,authentication,iam,process
+
+      - name: audittype
+        type: random_string_from_list
+        custom_list: SYSCALL,USER_AUTH,USER_LOGIN,USER_START,USER_END,CRED_ACQ,CRED_DISP,USER_ACCT,SERVICE_START,SERVICE_STOP
+
+      - name: auditresult
+        type: random_string_from_list
+        custom_list: success,success,success,success,success,success,fail
+
+      - name: processname
+        type: random_string_from_list
+        custom_list: sshd,sudo,su,login,passwd,useradd,userdel,groupadd,systemd,polkitd
+
+      - name: processid
+        type: int
+        range: 1,65535
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: start,authentication,access,change,user,group,allowed,denied
+
+      - name: audituid
+        type: int
+        range: 0,65534
+
+      - name: auditauid
+        type: int
+        range: 0,65534
+
+      - name: auditsession
+        type: int
+        range: 1,99999
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: hostname
+        type: random_string_from_list
+        custom_list: webserver01,webserver02,dbserver01,appserver01,appserver02,fileserver01,mailserver01,proxy01
+
+  # Linux secure logs - authentication and authorization
+  - workloadName: linux-secure
+    workloadThreads: 2
+    workloadSleep: 100
+    indexName: nixlogsec
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: authentication,authentication,authentication,iam,iam,session,session
+
+      - name: logfacility
+        type: random_string_from_list
+        custom_list: authpriv,auth
+
+      - name: logseverity
+        type: random_string_from_list
+        custom_list: info,info,info,notice,warning
+
+      - name: processname
+        type: random_string_from_list
+        custom_list: sshd,sshd,sshd,sudo,su,login,passwd,systemd-logind,polkitd
+
+      - name: processid
+        type: int
+        range: 1,65535
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: authentication,allowed,allowed,allowed,start,end,user
+
+      - name: authuser
+        type: random_string_from_list
+        custom_list: root,admin,operator,sysadmin,devops,developer,dbadmin,webadmin
+
+      - name: authmethod
+        type: random_string_from_list
+        custom_list: publickey,publickey,publickey,password,password,keyboard-interactive
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: ripcodes
+        type: int
+        range: 1,220
+
+      - name: rip2
+        type: int
+        range: 0,255
+
+      - name: rip3
+        type: int
+        range: 0,255
+
+      - name: rip4
+        type: int
+        range: 0,255
+
+      - name: hostname
+        type: random_string_from_list
+        custom_list: webserver01,webserver02,dbserver01,appserver01,appserver02,fileserver01,mailserver01,proxy01
+
+  # Linux secure logs - Suspicious/Failed authentication
+  - workloadName: linux-secure-malware
+    workloadThreads: 1
+    workloadSleep: 10000
+    indexName: nixlogsec
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: authentication,authentication,iam
+
+      - name: logfacility
+        type: random_string_from_list
+        custom_list: authpriv
+
+      - name: logseverity
+        type: random_string_from_list
+        custom_list: warning,error,notice
+
+      - name: processname
+        type: random_string_from_list
+        custom_list: sshd,sshd,sudo,su
+
+      - name: processid
+        type: int
+        range: 1,65535
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: denied,denied,authentication,denied
+
+      - name: authuser
+        type: random_string_from_list
+        custom_list: root,admin,administrator,test,guest,user,support
+
+      - name: authmethod
+        type: random_string_from_list
+        custom_list: password,password,password,none
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: ripcodes
+        type: int
+        range: 1,220
+
+      - name: rip2
+        type: int
+        range: 0,255
+
+      - name: rip3
+        type: int
+        range: 0,255
+
+      - name: rip4
+        type: int
+        range: 0,255
+
+      - name: hostname
+        type: random_string_from_list
+        custom_list: webserver01,webserver02,dbserver01,appserver01,appserver02,fileserver01,mailserver01,proxy01

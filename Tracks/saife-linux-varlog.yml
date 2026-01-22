@@ -1,0 +1,165 @@
+# Linux /var/log and Cron Log Generator
+# Configure connection settings for your Elastic Cloud deployment
+elasticsearchScheme: https
+elasticsearchHost: 38b9249405d44e4fbe37122c0da005ed.us-east-1.aws.found.io
+elasticsearchPort: 443
+elasticsearchUser: sdg
+elasticsearchPassword: changeme
+workloads:
+  # Linux syslog/messages - general system logs
+  - workloadName: linux-syslog
+    workloadThreads: 3
+    workloadSleep: 50
+    indexName: nixlog
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: process,host,configuration,process,process,driver,network
+
+      - name: logfacility
+        type: random_string_from_list
+        custom_list: daemon,kern,user,local0,local1,syslog,auth,cron
+
+      - name: logseverity
+        type: random_string_from_list
+        custom_list: info,info,info,info,notice,warning,error,debug
+
+      - name: processname
+        type: random_string_from_list
+        custom_list: systemd,sshd,NetworkManager,crond,rsyslogd,firewalld,polkitd,dbus-daemon,chronyd,auditd
+
+      - name: processid
+        type: int
+        range: 1,65535
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: start,stop,info,info,info,connection,start,info
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: hostname
+        type: random_string_from_list
+        custom_list: webserver01,webserver02,dbserver01,appserver01,appserver02,fileserver01,mailserver01,proxy01
+
+  # Linux cron logs - scheduled task execution
+  - workloadName: linux-cron
+    workloadThreads: 1
+    workloadSleep: 500
+    indexName: nixlog
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: process
+
+      - name: logfacility
+        type: random_string_from_list
+        custom_list: cron
+
+      - name: logseverity
+        type: random_string_from_list
+        custom_list: info,info,info,notice
+
+      - name: processname
+        type: random_string_from_list
+        custom_list: CROND,crond,anacron
+
+      - name: processid
+        type: int
+        range: 1,65535
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: start,info,info
+
+      - name: cronuser
+        type: random_string_from_list
+        custom_list: root,root,root,apache,mysql,nginx,backup,admin
+
+      - name: croncommand
+        type: random_string_from_list
+        custom_list: /usr/bin/logrotate,/usr/sbin/tmpwatch,/usr/bin/updatedb,/etc/cron.daily/logrotate,/usr/lib64/sa/sa1,/usr/bin/certbot,/opt/backup/backup.sh,/usr/bin/find
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: hostname
+        type: random_string_from_list
+        custom_list: webserver01,webserver02,dbserver01,appserver01,appserver02,fileserver01,mailserver01,proxy01
+
+  # Linux kernel/dmesg logs
+  - workloadName: linux-kernel
+    workloadThreads: 1
+    workloadSleep: 200
+    indexName: nixlog
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: driver,driver,host,configuration,network
+
+      - name: logfacility
+        type: random_string_from_list
+        custom_list: kern
+
+      - name: logseverity
+        type: random_string_from_list
+        custom_list: info,info,notice,warning,debug
+
+      - name: processname
+        type: random_string_from_list
+        custom_list: kernel
+
+      - name: processid
+        type: int
+        range: 0,0
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: info,start,connection,driver
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: hostname
+        type: random_string_from_list
+        custom_list: webserver01,webserver02,dbserver01,appserver01,appserver02,fileserver01,mailserver01,proxy01

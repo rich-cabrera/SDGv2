@@ -1,13 +1,16 @@
-elasticsearchScheme: http
-elasticsearchHost: localhost
-elasticsearchPort: 30920
+# Proxy Log Generator - ProxySG/Bluecoat style logs
+# Configure connection settings for your Elastic Cloud deployment
+elasticsearchScheme: https
+elasticsearchHost: 38b9249405d44e4fbe37122c0da005ed.us-east-1.aws.found.io
+elasticsearchPort: 443
 elasticsearchUser: sdg
 elasticsearchPassword: changeme
 workloads:
+  # Normal proxy traffic
   - workloadName: bluecoat-proxy
     workloadThreads: 6
     workloadSleep: 100
-    indexName: logs-proxysg.log-default
+    indexName: proxy
     fields:
       - name: proxcode
         type: int
@@ -60,10 +63,11 @@ workloads:
         type: int
         range: 1,1035
 
+  # Malicious/suspicious proxy traffic
   - workloadName: bluecoat-proxy-malware
     workloadThreads: 1
     workloadSleep: 10000
-    indexName: logs-proxysg.log-default
+    indexName: proxy
     fields:
       - name: proxcode
         type: int
@@ -114,4 +118,4 @@ workloads:
 
       - name: uacode
         type: int
-        range: 1,1035        
+        range: 1,1035

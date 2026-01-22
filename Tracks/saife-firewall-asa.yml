@@ -1,0 +1,261 @@
+# Cisco ASA Firewall Log Generator
+# Configure connection settings for your Elastic Cloud deployment
+elasticsearchScheme: https
+elasticsearchHost: 38b9249405d44e4fbe37122c0da005ed.us-east-1.aws.found.io
+elasticsearchPort: 443
+elasticsearchUser: sdg
+elasticsearchPassword: changeme
+workloads:
+  # Normal firewall traffic - allowed connections
+  - workloadName: firewall-asa-allowed
+    workloadThreads: 4
+    workloadSleep: 25
+    indexName: firewall
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: network,network,network,network,session
+
+      - name: eventaction
+        type: random_string_from_list
+        custom_list: allowed,allowed,allowed,allowed,allowed,allowed,allowed,allowed,allowed,connection-started
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: connection,allowed,start,info,protocol
+
+      - name: asacode
+        type: random_string_from_list
+        custom_list: 302013,302014,302015,302016,302020,302021,305011,305012,106015,106100
+
+      - name: networkprotocol
+        type: random_string_from_list
+        custom_list: TCP,TCP,TCP,TCP,UDP,UDP,ICMP
+
+      - name: sourceport
+        type: int
+        range: 1024,65535
+
+      - name: destinationport
+        type: random_string_from_list
+        custom_list: 80,443,443,443,22,25,53,110,143,389,636,3389,8080,8443
+
+      - name: sourcebytes
+        type: int
+        range: 0,65535
+
+      - name: destinationbytes
+        type: int
+        range: 0,262144
+
+      - name: ripcodes
+        type: int
+        range: 1,220
+
+      - name: rip2
+        type: int
+        range: 0,255
+
+      - name: rip3
+        type: int
+        range: 0,255
+
+      - name: rip4
+        type: int
+        range: 0,255
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: sourceinterface
+        type: random_string_from_list
+        custom_list: inside,inside,inside,dmz,outside
+
+      - name: destinationinterface
+        type: random_string_from_list
+        custom_list: outside,outside,outside,dmz,inside
+
+      - name: firewallname
+        type: random_string_from_list
+        custom_list: fw-core-01,fw-core-02,fw-dmz-01,fw-edge-01,fw-branch-01
+
+  # Firewall denied connections
+  - workloadName: firewall-asa-denied
+    workloadThreads: 2
+    workloadSleep: 100
+    indexName: firewall
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: network,intrusion_detection
+
+      - name: eventaction
+        type: random_string_from_list
+        custom_list: denied,denied,denied,denied,dropped
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: denied,connection,firewall-rule
+
+      - name: asacode
+        type: random_string_from_list
+        custom_list: 106001,106006,106007,106014,106015,106023,106100,710003,710005
+
+      - name: networkprotocol
+        type: random_string_from_list
+        custom_list: TCP,TCP,UDP,ICMP
+
+      - name: sourceport
+        type: int
+        range: 1024,65535
+
+      - name: destinationport
+        type: random_string_from_list
+        custom_list: 22,23,25,80,135,139,443,445,1433,3306,3389,5432,5900,8080
+
+      - name: ripcodes
+        type: int
+        range: 1,220
+
+      - name: rip2
+        type: int
+        range: 0,255
+
+      - name: rip3
+        type: int
+        range: 0,255
+
+      - name: rip4
+        type: int
+        range: 0,255
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: sourceinterface
+        type: random_string_from_list
+        custom_list: outside,outside,outside,dmz
+
+      - name: destinationinterface
+        type: random_string_from_list
+        custom_list: inside,inside,dmz,inside
+
+      - name: firewallname
+        type: random_string_from_list
+        custom_list: fw-core-01,fw-core-02,fw-dmz-01,fw-edge-01,fw-branch-01
+
+      - name: denyreason
+        type: random_string_from_list
+        custom_list: access-list,no-route,acl-drop,interface-rule,implicit-deny
+
+  # Firewall suspicious/malicious traffic
+  - workloadName: firewall-asa-malware
+    workloadThreads: 1
+    workloadSleep: 15000
+    indexName: firewall
+    fields:
+      - name: eventcategory
+        type: random_string_from_list
+        custom_list: intrusion_detection,intrusion_detection,network
+
+      - name: eventaction
+        type: random_string_from_list
+        custom_list: denied,denied,dropped,blocked
+
+      - name: eventtype
+        type: random_string_from_list
+        custom_list: denied,intrusion,firewall-rule
+
+      - name: asacode
+        type: random_string_from_list
+        custom_list: 106001,106006,106007,106017,400000,400001,400002,400003
+
+      - name: networkprotocol
+        type: random_string_from_list
+        custom_list: TCP,TCP,UDP
+
+      - name: sourceport
+        type: int
+        range: 1024,65535
+
+      - name: destinationport
+        type: random_string_from_list
+        custom_list: 22,23,445,1433,3389,4444,5555,6666,31337
+
+      - name: ripcodes
+        type: int
+        range: 1,220
+
+      - name: rip2
+        type: int
+        range: 0,255
+
+      - name: rip3
+        type: int
+        range: 0,255
+
+      - name: rip4
+        type: int
+        range: 0,255
+
+      - name: 2rip1
+        type: int
+        range: 10,10
+
+      - name: 2rip2
+        type: int
+        range: 30,50
+
+      - name: 2rip3
+        type: int
+        range: 100,200
+
+      - name: 2rip4
+        type: int
+        range: 0,254
+
+      - name: sourceinterface
+        type: random_string_from_list
+        custom_list: outside,outside,outside
+
+      - name: destinationinterface
+        type: random_string_from_list
+        custom_list: inside,dmz,inside
+
+      - name: firewallname
+        type: random_string_from_list
+        custom_list: fw-core-01,fw-core-02,fw-dmz-01,fw-edge-01,fw-branch-01
+
+      - name: denyreason
+        type: random_string_from_list
+        custom_list: threat-detected,ips-block,rate-limit,botnet-filter
+
+      - name: threatname
+        type: random_string_from_list
+        custom_list: SYN-flood,Port-scan,Brute-force,Malware-callback,C2-traffic
