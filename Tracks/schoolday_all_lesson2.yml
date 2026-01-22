@@ -1,8 +1,8 @@
 elasticsearchScheme: https
 elasticsearchHost: 38b9249405d44e4fbe37122c0da005ed.us-east-1.aws.found.io
 elasticsearchPort: 443
-elasticsearchUser: sdg
-elasticsearchPassword: changeme
+elasticsearchUser: admin
+elasticsearchPassword: admin1
 workloads:
   - workloadName: network-dns
     workloadThreads: 8
