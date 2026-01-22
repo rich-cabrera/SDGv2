@@ -1,22 +1,26 @@
 plugins {
     id 'java'
-    id 'org.sonarqube' version '2.6'
-    id 'net.researchgate.release' version '2.6.0'
 }
 
 group 'com.pahlsoft.examples.simpledata'
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 //create a single Jar with all dependencies
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
     manifest {
         attributes 'Implementation-Title': 'Simple Load Generator',
                 'Implementation-Version': 1.0,
                 'Main-Class': 'com.pahlsoft.simpledata.runner.EngineRunner'
     }
-    baseName = project.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    archiveBaseName = project.name
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
     with jar
 }
 
@@ -25,13 +29,15 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.3.0',
-            'org.slf4j:slf4j-api:1.7.25', 'ch.qos.logback:logback-classic:1.2.3', 'ch.qos.logback:logback-core:1.2.3',
-            'com.github.javafaker:javafaker:0.14', 'co.elastic.apm:apm-agent-api:1.7.0'
-
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.9'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    implementation 'ch.qos.logback:logback-core:1.4.14'
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+    implementation 'co.elastic.apm:apm-agent-api:1.44.0'
 }
 
-clean {
+tasks.named('clean') {
     delete 'out', 'build', 'transaction-engine.log'
 }
