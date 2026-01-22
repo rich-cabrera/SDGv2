@@ -64,10 +64,15 @@ public class WorkloadGeneratorEngine implements Engine {
 
         try {
             if (this.config_map.getElasticsearchScheme().contentEquals("https")) {
-                sslBuilder = buildSSLContext();
-                final SSLContext sslContext = sslBuilder.build();
-                client = getSecureClient(credentialsProvider, sslContext);
-
+                // Check if custom keystore is configured, otherwise use default system trust store
+                if (this.config_map.getKeystoreLocation() != null && !this.config_map.getKeystoreLocation().isEmpty()) {
+                    sslBuilder = buildSSLContext();
+                    final SSLContext sslContext = sslBuilder.build();
+                    client = getSecureClient(credentialsProvider, sslContext);
+                } else {
+                    // Use default SSL context (system trust store) for Elastic Cloud
+                    client = getSecureClientWithDefaultSSL(credentialsProvider);
+                }
             } else {
                 client = getClient(credentialsProvider);
             }
@@ -153,6 +158,18 @@ public class WorkloadGeneratorEngine implements Engine {
                             @Override
                             public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
                                 return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider).setSSLContext(sslContext);
+                            }
+                        }));
+    }
+
+    private RestHighLevelClient getSecureClientWithDefaultSSL(CredentialsProvider credentialsProvider) {
+        return new RestHighLevelClient(
+                RestClient.builder(
+                        new HttpHost(this.config_map.getElasticsearchHost(), this.config_map.getElasticsearchPort(), this.config_map.getElasticsearchScheme()))
+                        .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                            @Override
+                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                                return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
                             }
                         }));
     }
