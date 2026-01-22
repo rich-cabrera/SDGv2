@@ -4,9 +4,9 @@ plugins {
 
 group 'com.pahlsoft.examples.simpledata'
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+// Use release flag for cross-compilation compatibility
+tasks.withType(JavaCompile).configureEach {
+    options.release = 11
 }
 
 //create a single Jar with all dependencies
